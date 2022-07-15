@@ -1,0 +1,2 @@
+# blackjack
+Haskell Blackjack Project
