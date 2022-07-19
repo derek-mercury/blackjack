@@ -1,5 +1,5 @@
-
 module Blackjack where
+import Data.List
 
 data Suit = Clubs
             | Diamonds
@@ -19,17 +19,17 @@ data Rank = Ace
             | Jack
             | Queen
             | King
-            deriving (Show)
+            deriving (Show, Eq)
 
-data Card = Card Suit Rank
+data Card = Card { suit:: Suit, rank:: Rank }
             deriving (Show)
 
 -- create list of card objects, 13 of each
 -- createDeck = [Card Clubs 1, .., Card Clubs 13]
 
 -- convert Rank to actual Num
-getCardValue:: Rank -> Int
-getCardValue c = case c of 
+getRankValue:: Rank -> Int
+getRankValue c = case c of 
     Ace -> 1
     Two -> 2
     Three -> 3
@@ -40,18 +40,30 @@ getCardValue c = case c of
     Eight -> 8
     Nine -> 9
     Ten -> 10
-    Jack -> 11
-    Queen -> 12
-    King -> 13
-    -- c == Ace -> 13
+    Jack -> 10
+    Queen -> 10
+    King -> 10
+    -- c == Ace -> 11
 
 -- get value of hand
-getOptimalHandValue :: Card -> Card -> Int
-getOptimalHandValue (Card _ rank1) (Card _ rank2)
-    -- the only ever time we want to make Ace = 13 is when
-    | (val1 == 1 || val2 == 1) && val1 + val2 + 12 <= 21 = val1 + val2 + 12
-    | otherwise = val1 + val2
-
+getOptimalHandValue :: [Card] -> Int
+getOptimalHandValue cards = go initialValue aces
     where
-        val1 = getCardValue rank1
-        val2 = getCardValue rank2
+        go n [] = n
+        go n [_] = if n + 11 > 21
+            then n + 1
+            else n + 11
+        go n (_ : tail) = go (n + 1) tail
+
+        f (Card _ rank) = rank == Ace
+        (aces, othercards) = partition f cards
+
+        initialValue = sum [getRankValue $ rank r | r <- othercards]
+        main = print initialValue
+
+
+-- -- tests
+-- t1 = [ Card Clubs Ace, Card Clubs Three, Card Clubs Jack, Card Clubs Two]   -- 1 + 3 + 10 + 2 = 16
+-- t2 = [ Card Clubs Ace, Card Spades Ace, Card Clubs Queen]                   -- 1 + 1 + 10 = 12
+-- t3 = [ Card Clubs Ace, Card Spades Jack]                                    -- 10 + 11 = 21
+-- t4 = [ Card Clubs Ace, Card Spades Ace]                                     -- 1 + 1 = 12
