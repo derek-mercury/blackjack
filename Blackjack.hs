@@ -1,11 +1,13 @@
 module Blackjack where
 import Data.List
+import System.Random (newStdGen)
+import System.Random.Shuffle (shuffle')
 
 data Suit = Clubs
             | Diamonds
             | Hearts
             | Spades
-            deriving (Show)
+            deriving (Show, Enum)
 data Rank = Ace
             | Two
             | Three
@@ -19,7 +21,7 @@ data Rank = Ace
             | Jack
             | Queen
             | King
-            deriving (Show, Eq)
+            deriving (Show, Eq, Enum)
 
 data Card = Card { suit:: Suit, rank:: Rank }
             deriving (Show)
@@ -61,9 +63,33 @@ getOptimalHandValue cards = go initialValue aces
         initialValue = sum [getRankValue $ rank r | r <- othercards]
         main = print initialValue
 
+-- generate initial deck
+createDeck :: Int -> [Card]
+createDeck cardsindeck = deck
+    where
+        ranks = [(Ace :: Rank) ..]
+        suits = [(Clubs :: Suit) ..]
+
+        deck = [(Card s r)| r <- ranks, s <- suits]
+        main = print deck
+
+-- draw card from deck
+drawCard :: [Card] -> Card
+drawCard deck = deck !! n
+    where
+        n = 0
+
+-- player actions
+isBust :: [Card] -> Bool
+isBust hand = if getOptimalHandValue hand > 21 then True else False
+
+isWin :: [Card] -> Bool
+isWin :: hand = if getOptimalHandValue hand == 21 then True else False
+
+
 
 -- -- tests
--- t1 = [ Card Clubs Ace, Card Clubs Three, Card Clubs Jack, Card Clubs Two]   -- 1 + 3 + 10 + 2 = 16
--- t2 = [ Card Clubs Ace, Card Spades Ace, Card Clubs Queen]                   -- 1 + 1 + 10 = 12
--- t3 = [ Card Clubs Ace, Card Spades Jack]                                    -- 10 + 11 = 21
--- t4 = [ Card Clubs Ace, Card Spades Ace]                                     -- 1 + 1 = 12
+t1 = [ Card Clubs Ace, Card Clubs Three, Card Clubs Jack, Card Clubs Two]   -- 1 + 3 + 10 + 2 = 16
+t2 = [ Card Clubs Ace, Card Spades Ace, Card Clubs Queen]                   -- 1 + 1 + 10 = 12
+t3 = [ Card Clubs Ace, Card Spades Jack]                                    -- 10 + 11 = 21
+t4 = [ Card Clubs Ace, Card Spades Ace]                                     -- 1 + 1 = 12
